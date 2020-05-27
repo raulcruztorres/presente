@@ -85,7 +85,7 @@ void state_update(level *lvl, state *sta){
         }
     }
 
-    // == Check bullet-enemy collisions
+    // == Check player-enemy collisions
     for(int k=0;k<sta->n_enemies;k++){
         // If an enemy is colliding with the player
         if(entity_collision(&sta->pla.ent,&sta->enemies[k].ent)){
