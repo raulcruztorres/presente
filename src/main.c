@@ -23,8 +23,31 @@ int main(int argc, char const *argv[]){
     state *sta = state_new();
     state_populate_random(lvl,sta,40);
 
+    // Load music
+    InitAudioDevice();
+    Music battle = LoadMusicStream("./resources/Into-Battle_v001.mp3");
+    /* Music by Eric Matyas   www.soundimage.org*/
+    PlayMusicStream(battle); 
+    bool pause = false;
+
     // Main loop
     while(!WindowShouldClose()){
+        // Music control
+        UpdateMusicStream(battle);
+
+        if (IsKeyPressed(KEY_SPACE)){
+            StopMusicStream(battle);
+            PlayMusicStream(battle);
+        }
+
+        // Pause/Resume music playing
+        if (IsKeyPressed(KEY_P)){
+            pause = !pause;
+
+            if (pause) PauseMusicStream(battle);
+            else ResumeMusicStream(battle);
+        }
+
 
         // Update input depending if keys are pressed or not
         sta->button_state[0] = IsKeyDown(KEY_D);
@@ -47,11 +70,16 @@ int main(int argc, char const *argv[]){
 
             draw_state(lvl, sta);
 
-            DrawText("Presente profe!",190,200,20,LIGHTGRAY);
+            DrawText("Presente profe!\nPress P to pause/resume music\nPress Space to replay music\nPress Esc to exit",50,50,16,LIGHTGRAY);
+            DrawText("Music by Eric Matyas\nwww.soundimage.org",550,50,16,LIGHTGRAY);
 
         EndDrawing();
 
     }
+
+    // Unload music
+    UnloadMusicStream(battle);
+    CloseAudioDevice();
 
     // Closer window
     CloseWindow();

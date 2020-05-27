@@ -7,16 +7,18 @@
 #define PLAYER_RAD 10
 #define PLAYER_SPEED 4
 #define PLAYER_COOLDOWN 8
+#define PLAYER_PERIOD 300 // Defining immunity period
 
 #define MINION_HP   4
 #define MINION_RAD 12
+#define MINION_DMG 2 // Defining minion damage
 #define BRUTE_HP   12
 #define BRUTE_RAD  16
+#define BRUTE_DMG 4 // Defining brute damage
 
 #define BULLET_DMG 3
 #define BULLET_SPEED 16
 #define BULLET_RAD   5
-
 
 // ==== PLAYER DEFINITION
 typedef struct {

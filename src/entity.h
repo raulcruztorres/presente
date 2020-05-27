@@ -11,8 +11,12 @@ typedef struct {
     float vx,vy;
     // radious
     int rad;
-    // hit points (or damage)
+    // hit points
     int hp;
+    // Damage
+    int dmg;
+    // Immunity period
+    int period;
     // if it is dead or not
     int dead;
 } entity;

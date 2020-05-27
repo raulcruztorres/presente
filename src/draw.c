@@ -32,7 +32,6 @@ void draw_state(const level *lvl, const state *sta){
 
     // Draw everything relative to the camera from now on
     BeginMode2D(cam);
-
     // Draw level
     draw_level(lvl);
 

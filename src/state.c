@@ -19,6 +19,7 @@ state *state_new(){
     sta->pla.ent.y = TILE_SIZE/2;
     sta->pla.ent.rad = PLAYER_RAD;
     sta->pla.ent.hp  = PLAYER_HP;
+    sta->pla.ent.period = PLAYER_PERIOD; // Add immunity period
 
     // Retrieve pointer to the state
     return sta;
@@ -68,7 +69,7 @@ void state_update(level *lvl, state *sta){
             new_bullet->ent.vy     = -BULLET_SPEED*sin(sta->aim_angle);
             //
             new_bullet->ent.rad    = BULLET_RAD;
-            new_bullet->ent.hp     = BULLET_DMG;
+            new_bullet->ent.dmg    = BULLET_DMG;
         }
     }
 
@@ -77,17 +78,41 @@ void state_update(level *lvl, state *sta){
         for(int k=0;k<sta->n_enemies;k++){
             // If a bullet is colliding with an enemy
             if(entity_collision(&sta->bullets[i].ent,&sta->enemies[k].ent)){
-                // Reduce enemy's health by bullet's health and kill bullet
-                sta->enemies[k].ent.hp -= sta->bullets[i].ent.hp;
+                // Reduce enemy's health by bullet's damage and kill bullet
+                sta->enemies[k].ent.hp -= sta->bullets[i].ent.dmg;
                 sta->bullets[i].ent.dead = 1;
             }
         }
     }
 
+    // == Check bullet-enemy collisions
+    for(int k=0;k<sta->n_enemies;k++){
+        // If an enemy is colliding with the player
+        if(entity_collision(&sta->pla.ent,&sta->enemies[k].ent)){
+            // Reduce player's health by enemie's and reduce immunity period
+            if(sta->pla.ent.period == 300){
+                sta->pla.ent.hp -= sta->enemies[k].ent.dmg;
+                sta->pla.ent.period -= 1;
+            }
+        }
+    }
+    
+
+    // If the immunity period goes to 0 is over and returns to the original value. Now is possible to be damaged for an enemy again.
+    if(sta->pla.ent.period == 0){
+        sta->pla.ent.period = 300;
+    }
+    // If the player has collided with an enemy reduces the immunity period each frame by 1.
+    if(sta->pla.ent.period > 0 && sta->pla.ent.period < 300){
+        sta->pla.ent.period -= 1;
+    } 
+
+
+
     // == Update entities
     // Update player
     entity_physics(lvl,&sta->pla.ent);
-    if(sta->pla.ent.hp<=0) sta->pla.ent.dead=1;
+    if(sta->pla.ent.hp<=0) sta->pla.ent.dead=1; // Now this line is usefull
     // Update enemies
     for(int i=0;i<sta->n_enemies;i++){
         entity_physics(lvl,&sta->enemies[i].ent);
@@ -157,10 +182,12 @@ void state_populate_random(level *lvl, state *sta, int n_enemies){
                     new_enemy->kind   = BRUTE;
                     new_enemy->ent.hp = BRUTE_HP;
                     new_enemy->ent.rad = BRUTE_RAD;
+                    new_enemy->ent.dmg = BRUTE_DMG; // Adding enemy damage
                 }else{
                     new_enemy->kind   = MINION;
                     new_enemy->ent.hp = MINION_HP;
                     new_enemy->ent.rad = MINION_RAD;
+                    new_enemy->ent.dmg = BRUTE_DMG; // Adding enemy damage
                 }
                 // Break while(1) as the operation was successful
                 break;
